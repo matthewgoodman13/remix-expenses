@@ -16,4 +16,13 @@ model Expense {
   amount    Float
   date      DateTime
   dateAdded DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id])
+  userId    String   @db.ObjectId
+}
+
+model User {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  email    String    @unique
+  password String
+  expenses Expense[]
 }

@@ -1,26 +1,38 @@
-import { Link, Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration, useCatch } from '@remix-run/react';
+import {
+  Link,
+  Links,
+  LiveReload,
+  Meta,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  useCatch,
+  useMatches,
+} from '@remix-run/react';
 
 import sharedStyles from '~/styles/shared.css';
 import Error from './components/util/Error';
 
 export const meta = () => ({
   charset: 'utf-8',
-  title: 'New Remix App',
+  title: 'RemixExpenses',
   viewport: 'width=device-width,initial-scale=1',
 });
 
 function Document({ title, children }) {
+  const matches = useMatches();
+  const disableJavaScript = matches.some((match) => match.handle?.disableJavaScript);
   return (
     <html lang="en">
       <head>
-        <title>{title}</title>
+        {title && <title>{title}</title>}
         <Meta />
         <Links />
       </head>
       <body>
         {children}
         <ScrollRestoration />
-        <Scripts />
+        {!disableJavaScript && <Scripts />}
         <LiveReload />
       </body>
     </html>

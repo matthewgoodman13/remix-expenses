@@ -1,4 +1,6 @@
 import AuthForm from '~/components/auth/AuthForm';
+import { login, signup } from '~/data/auth.server';
+import { validateCredentials } from '~/data/validation.server';
 import authStyles from '~/styles/auth.css';
 
 export default function AuthPage() {
@@ -20,11 +22,31 @@ export async function action({ request }) {
   const formData = await request.formData();
   const authData = Object.fromEntries(formData);
 
-  // Validate authData
-
-  if (authMode === 'login') {
-    // Login
-  } else {
-    // Signup
+  try {
+    validateCredentials(authData);
+  } catch (error) {
+    return error;
   }
+
+  // Validate authData
+  try {
+    if (authMode === 'login') {
+      return await login(authData);
+    } else {
+      return await signup(authData);
+    }
+  } catch (error) {
+    if (error.status === 422) {
+      return {
+        credentials: error.message,
+      };
+    }
+    throw error;
+  }
+}
+
+export function headers({ actionHeaders, loaderHeaders, parentHeaders }) {
+  return {
+    'Cache-Control': parentHeaders.get('Cache-Control'),
+  };
 }

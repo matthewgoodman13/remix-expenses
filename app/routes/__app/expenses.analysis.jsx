@@ -4,6 +4,7 @@ import ExpenseStatistics from '~/components/expenses/ExpenseStatistics';
 import { getExpenses } from '~/data/expenses.server';
 import { useCatch, useLoaderData } from '@remix-run/react';
 import Error from '~/components/util/Error';
+import { requireUserSession } from '~/data/auth.server';
 
 // const DUMMY_EMPENSES = [
 //   { id: 'e1', title: 'Toilet Paper', amount: 94.12, date: new Date(2021, 7, 14).toISOString() },
@@ -23,7 +24,8 @@ export default function ExpenseAnalytics() {
   );
 }
 
-export async function loader() {
+export async function loader({ request }) {
+  await requireUserSession(request);
   const expenses = await getExpenses();
 
   if (!expenses || expenses.length === 0) {

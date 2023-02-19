@@ -1,6 +1,8 @@
+import { json } from '@remix-run/node';
 import { Link, Outlet, useLoaderData } from '@remix-run/react';
 import { FaDownload, FaPlus } from 'react-icons/fa';
 import ExpensesList from '~/components/expenses/ExpensesList';
+import { requireUserSession } from '~/data/auth.server';
 import { getExpenses } from '~/data/expenses.server';
 
 // const DUMMY_EMPENSES = [
@@ -43,6 +45,18 @@ export default function ExpensesLayout() {
   );
 }
 
-export function loader() {
-  return getExpenses(); // returns a promise that resolves to an array of expenses
+export async function loader({ request }) {
+  const userId = await requireUserSession(request);
+  const expenses = await getExpenses(userId);
+
+  return json(expenses, {
+    headers: {
+      'Cache-Control': 'max-age=3', // 3 seconds
+    },
+  });
+}
+export function headers({ actionHeaders, loaderHeaders, parentHeaders }) {
+  return {
+    'Cache-Control': loaderHeaders.get('Cache-Control'),
+  };
 }
